@@ -3,6 +3,13 @@ import numpy as np
 from myutil import calculate_receptive_field, get_bin_border_with_equal_count
 from generative_wavenet import EnhancedBasicWaveNet
 
+import tensorflow as tf
+config = tf.ConfigProto() 
+config.gpu_options.allow_growth=True 
+sess = tf.Session(config=config)
+
+import keras.backend.tensorflow_backend as KTF
+KTF.set_session(sess)
 
 # ********* parepare data *********
 SP500 = pd.read_csv('./data/SP500_05-16.csv', parse_dates=['Date'], usecols=['Date','Price']).rename(columns={'Price':'SP500'})
