@@ -86,7 +86,7 @@ with open("mean_absolute_errors.txt", "w") as f:
       targets, preds = ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_res_skip_cond_wt.h5")
       f.write("itr_eqb_res_skip_cond: ", mean_absolute_error(targets, preds), "\n")
 
-       ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+      ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
             num_classes = quantization_channels, 
             use_condition = False, # no global_condition
             num_channels = X.shape[-1], 
