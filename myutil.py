@@ -272,6 +272,9 @@ def split_batch_norm_X_y(normalizer, split_rate, X, y, y_feature_axis_in_X, time
     
     return X_train, y_train, X_test, y_test
 
+def mean_absolute_error(y_true, y_pred):
+    return np.mean(np.abs(y_pred - y_true), axis=-1)
+
 def visualize_forecast_plot(pred_outs_back, y_test_back, save_figure=False, figname=None):
     if len(pred_outs_back.shape) > 1:
         pred_outs_back = pred_outs_back.reshape(-1)
@@ -285,6 +288,8 @@ def visualize_forecast_plot(pred_outs_back, y_test_back, save_figure=False, fign
     df_pred_outs_back.plot(label='Forecast', alpha=.75)
     df_y_test_back.plot(label='Actual', alpha=.75, ls='--')
     plt.legend(fontsize=12)
+    plt.xlabel("Time steps")
+    plt.ylabel("Price")
     if figname is not None:
         plt.title(figname.split('.')[0])
     if save_figure and figname is not None:
@@ -304,6 +309,8 @@ def visualize_forecast_scatter(pred_outs_back, y_test_back, save_figure=False, f
     plt.scatter(np.arange(0, df_pred_outs_back.shape[0]), df_pred_outs_back, label='Forecast', alpha=.75, marker='.')
     plt.scatter(np.arange(0, df_y_test_back.shape[0]), df_y_test_back, label='Actual', alpha=.75, marker='.')
     plt.legend(fontsize=12)
+    plt.xlabel("Time steps")
+    plt.ylabel("Price")
     if figname is not None:
         plt.title(figname.split('.')[0])
     if save_figure and figname is not None:

@@ -299,11 +299,12 @@ class EnhancedBasicWaveNet(object):
             # Save the model weights.  
             if i == (iterations-1) and weight_file is not None:
                 self.weight_path = os.path.join('./', weight_file)
-                self.model.save_weights(self.weight_path)
+                model.save_weights(self.weight_path)
                 print("path: ", self.weight_path) 
             
-        visualize_forecast_plot(preds, targets, save_figure=True, figname=weight_file.split['.'][0]+'.png')
+        visualize_forecast_plot(preds, targets, save_figure=True, figname=weight_file.split('.')[0]+'.png')
         
+        return targets, preds
         
     def train(self, X_train, y_train, batch_size, epochs, steps_per_epoch, weight_file='wt.h5'):
         

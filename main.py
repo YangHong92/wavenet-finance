@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from myutil import calculate_receptive_field, get_bin_border_with_equal_count
+from myutil import calculate_receptive_field, get_bin_border_with_equal_count, mean_absolute_error
 from generative_wavenet import EnhancedBasicWaveNet
 
 # import tensorflow as tf
@@ -42,7 +42,7 @@ solution = {0:'classification', 1:'regression'}
 quantization_channels = 80
 test_round = 500
 batch_size = 100
-epochs = 50
+epochs = 40
 num_blocks = 3
 num_layers = 6 
 num_hidden = 128
@@ -52,70 +52,97 @@ receptive_field = calculate_receptive_field(dilations, filter_width)
 print("receptive_field: ", receptive_field)
 SPX = X[:,0]
 
-# ********* equal bin_width *********
-bins = np.linspace(round(SPX.min(), 4)-0.0001, round(SPX.max(), 4)+0.0001, num = quantization_channels+1) 
-y_discret = np.digitize(SPX, bins) - 1
+with open("mean_absolute_errors.txt", "w") as f:
 
-ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
-      num_classes = quantization_channels, 
-      use_condition = False, # no global_condition
-      num_channels = X.shape[-1], 
-      num_blocks = num_blocks, 
-      num_layers = num_layers, 
-      num_hidden = num_hidden, 
-      use_residual = True,
-      use_skip = True,                        
-      solution = solution[0])
+      # ********* equal bin_width *********
+      bins = np.linspace(round(SPX.min(), 4)-0.0001, round(SPX.max(), 4)+0.0001, num = quantization_channels+1) 
+      y_discret = np.digitize(SPX, bins) - 1
 
-ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_res_skip_wt.h5")
+      ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+            num_classes = quantization_channels, 
+            use_condition = False, # no global_condition
+            num_channels = X.shape[-1], 
+            num_blocks = num_blocks, 
+            num_layers = num_layers, 
+            num_hidden = num_hidden, 
+            use_residual = True,
+            use_skip = True,                        
+            solution = solution[0])
 
+      targets, preds = ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_res_skip_wt.h5")
+      f.write("itr_eqb_res_skip: ", mean_absolute_error(targets, preds), "\n")
 
-ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
-      num_classes = quantization_channels, 
-      use_condition = True, # with global_condition
-      num_channels = X.shape[-1], 
-      num_blocks = num_blocks, 
-      num_layers = num_layers, 
-      num_hidden = num_hidden, 
-      use_residual = True,
-      use_skip = True,                        
-      solution = solution[0])
+      ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+            num_classes = quantization_channels, 
+            use_condition = True, # with global_condition
+            num_channels = X.shape[-1], 
+            num_blocks = num_blocks, 
+            num_layers = num_layers, 
+            num_hidden = num_hidden, 
+            use_residual = True,
+            use_skip = True,                        
+            solution = solution[0])
 
-ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_res_skip_cond_wt.h5")
-# ********* equal bin_width *********
+      targets, preds = ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_res_skip_cond_wt.h5")
+      f.write("itr_eqb_res_skip_cond: ", mean_absolute_error(targets, preds), "\n")
 
+       ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+            num_classes = quantization_channels, 
+            use_condition = False, # no global_condition
+            num_channels = X.shape[-1], 
+            num_blocks = num_blocks, 
+            num_layers = num_layers, 
+            num_hidden = num_hidden, 
+            use_skip = True,
+            solution = solution[0])
 
-# ********* unequal bin_width *********
-uneq_bin_borders = get_bin_border_with_equal_count(SPX, quantization_channels)
-y_uneq_discret = np.digitize(SPX, uneq_bin_borders) - 1
+      targets, preds = ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_skip_wt.h5")
+      f.write("itr_eqb_skip: ", mean_absolute_error(targets, preds), "\n")
 
-ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
-      num_classes = quantization_channels, 
-      use_condition = False, # no global_condition
-      num_channels = X.shape[-1], 
-      num_blocks = num_blocks, 
-      num_layers = num_layers, 
-      num_hidden = num_hidden,
-      use_residual = True,
-      use_skip = True,                        
-      solution = solution[0])
+      ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+            num_classes = quantization_channels, 
+            use_condition = False, # no global_condition
+            num_channels = X.shape[-1], 
+            num_blocks = num_blocks, 
+            num_layers = num_layers, 
+            num_hidden = num_hidden, 
+            use_residual = True,
+            solution = solution[0])
 
-ehwavenet.iterative_train(X, y_uneq_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_uneqb_res_skip_wt.h5")
-
-
-ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
-      num_classes = quantization_channels, 
-      use_condition = True, # with global_condition
-      num_channels = X.shape[-1], 
-      num_blocks = num_blocks, 
-      num_layers = num_layers, 
-      num_hidden = num_hidden, 
-      use_residual = True,
-      use_skip = True,                        
-      solution = solution[0])
-
-ehwavenet.iterative_train(X, y_uneq_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_uneqb_res_skip_cond_wt.h5")
-# ********* unequal bin_width *********
+      targets, preds = ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_res_wt.h5")
+      f.write("itr_eqb_res: ", mean_absolute_error(targets, preds), "\n")
+      # ********* equal bin_width *********
 
 
+      # ********* unequal bin_width *********
+      uneq_bin_borders = get_bin_border_with_equal_count(SPX, quantization_channels)
+      y_uneq_discret = np.digitize(SPX, uneq_bin_borders) - 1
 
+      ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+            num_classes = quantization_channels, 
+            use_condition = False, # no global_condition
+            num_channels = X.shape[-1], 
+            num_blocks = num_blocks, 
+            num_layers = num_layers, 
+            num_hidden = num_hidden,
+            use_residual = True,
+            use_skip = True,                        
+            solution = solution[0])
+
+      targets, preds = ehwavenet.iterative_train(X, y_uneq_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_uneqb_res_skip_wt.h5")
+      f.write("itr_uneqb_res_skip: ", mean_absolute_error(targets, preds), "\n")
+
+      ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+            num_classes = quantization_channels, 
+            use_condition = True, # with global_condition
+            num_channels = X.shape[-1], 
+            num_blocks = num_blocks, 
+            num_layers = num_layers, 
+            num_hidden = num_hidden, 
+            use_residual = True,
+            use_skip = True,                        
+            solution = solution[0])
+
+      targets, preds = ehwavenet.iterative_train(X, y_uneq_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_uneqb_res_skip_cond_wt.h5")
+      f.write("itr_uneqb_res_skip_cond: ", mean_absolute_error(targets, preds), "\n")
+      # ********* unequal bin_width *********
