@@ -297,12 +297,13 @@ class EnhancedBasicWaveNet(object):
             targets = np.append(targets, y_test, axis=0)
             
             # Save the model weights.  
-            if i == (iterations-1) and weight_file is not None:
+            if ((i-iterations+test_round == 0) or i==0) and weight_file is not None:
+                # self.generate(X_train[-1,-1,0][None,None], X_train[-1,-1,1][None,None], test_round, y_test)
                 self.weight_path = os.path.join('./', weight_file)
                 model.save_weights(self.weight_path)
                 print("path: ", self.weight_path) 
             
-        visualize_forecast_plot(preds, targets, save_figure=True, figname=weight_file.split('.')[0]+'.png')
+        visualize_forecast_plot(preds, targets, show=False, save_figure=True, figname=weight_file.split('_wt')[0]+'_predict.png')
         
         return targets, preds
         
@@ -537,14 +538,9 @@ class EnhancedBasicWaveNet(object):
         self.sess = K.get_session()
         self.sess.run(self.init_ops)
 
-    def generate(self, input_, condition_, num_samples, y_test, bins, batch_size=1, input_size=1, weight_path=None):
+    def generate(self, input_, condition_, num_samples, y_test, weight_path, batch_size=1, input_size=1):
 
-        if weight_path is not None:
-            # Clean up the TF session.
-            # K.clear_session()
-            gen_model = self._load_model(weight_path)        
-        else:
-            gen_model = self._load_model(self.weight_path) 
+        gen_model = self._load_model(weight_path) 
             
         self._init_generator(gen_model, batch_size=batch_size, input_size=input_.shape[-1])
         # self._init_generator(gen_model, batch_size, input_size)
@@ -569,7 +565,7 @@ class EnhancedBasicWaveNet(object):
             predictions.append(input_)
     
         predictions_ = np.concatenate(predictions, axis=1)
-        visualize_forecast_plot(predictions_, y_test[:,-1,:])
+        visualize_forecast_plot(predictions_, y_test[:,-1,:], show=False, save_figure=True, figname=weight_path.split('_wt')[0]+'_generate.png')
         
         return predictions_
         

@@ -1,0 +1,6 @@
+{
+    "test_round": 200,
+    "batch_size": 800,
+    "epochs": 20,
+    "run_example": [0]
+}
