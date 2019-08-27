@@ -6,7 +6,7 @@ To configure these parameters, edit in args.json:
 It is currently configured as:
 ```
 {
-    "test_round": 40,
+    "test_round": 50,
     "batch_size": 200,
     "epochs": 20,
     "run_example": [0,1,2,3,4,5]

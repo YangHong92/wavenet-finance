@@ -50,7 +50,7 @@ with open("args.json", "r") as jsfile:
       run_example = np.array(args["run_example"])
 
 num_blocks = 2
-num_layers = 4 
+num_layers = 5 
 num_hidden = 128
 filter_width = 2
 dilations = [2**i for i in range(num_layers)] * num_blocks
@@ -79,7 +79,7 @@ with open("mean_absolute_errors.txt", "w") as f:
             targets, preds = ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_res_skip_wt.h5")
             f.write("itr_eqb_res_skip_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
             peds = ehwavenet.generate(X[-test_round-1,0][None,None], X[-test_round-1,1][None,None], test_round, y_discret[-test_round:], "itr_eqb_res_skip_wt.h5")
-            f.write("itr_eqb_res_skip_generate: " + str(mean_absolute_error(y_discret[-test_round:], preds)) + "\n")
+            f.write("itr_eqb_res_skip_generate: " + str(mean_absolute_error(y_discret[-test_round:], peds)) + "\n")
 
       if 1 in run_example:
             ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
@@ -96,7 +96,7 @@ with open("mean_absolute_errors.txt", "w") as f:
             targets, preds = ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_res_skip_cond_wt.h5")
             f.write("itr_eqb_res_skip_cond_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
             peds = ehwavenet.generate(X[-test_round-1,0][None,None], X[-test_round-1,1][None,None], test_round, y_discret[-test_round:], "itr_eqb_res_skip_cond_wt.h5")
-            f.write("itr_eqb_res_skip_cond_generate: " + str(mean_absolute_error(y_discret[-test_round:], preds)) + "\n")
+            f.write("itr_eqb_res_skip_cond_generate: " + str(mean_absolute_error(y_discret[-test_round:], peds)) + "\n")
 
       if 2 in run_example:
             ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
@@ -112,7 +112,7 @@ with open("mean_absolute_errors.txt", "w") as f:
             targets, preds = ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_skip_wt.h5")
             f.write("itr_eqb_skip_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
             peds = ehwavenet.generate(X[-test_round-1,0][None,None], X[-test_round-1,1][None,None], test_round, y_discret[-test_round:], "itr_eqb_skip_wt.h5")
-            f.write("itr_eqb_skip_generate: " + str(mean_absolute_error(y_discret[-test_round:], preds)) + "\n")
+            f.write("itr_eqb_skip_generate: " + str(mean_absolute_error(y_discret[-test_round:], peds)) + "\n")
 
       if 3 in run_example:
             ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
@@ -128,7 +128,7 @@ with open("mean_absolute_errors.txt", "w") as f:
             targets, preds = ehwavenet.iterative_train(X, y_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_eqb_res_wt.h5")
             f.write("itr_eqb_res_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
             peds = ehwavenet.generate(X[-test_round-1,0][None,None], X[-test_round-1,1][None,None], test_round, y_discret[-test_round:], "itr_eqb_res_wt.h5")
-            f.write("itr_eqb_res_generate: " + str(mean_absolute_error(y_discret[-test_round:], preds)) + "\n")
+            f.write("itr_eqb_res_generate: " + str(mean_absolute_error(y_discret[-test_round:], peds)) + "\n")
       # ********* equal bin_width *********
 
 
@@ -151,7 +151,7 @@ with open("mean_absolute_errors.txt", "w") as f:
             targets, preds = ehwavenet.iterative_train(X, y_uneq_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_uneqb_res_skip_wt.h5")
             f.write("itr_uneqb_res_skip_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
             peds = ehwavenet.generate(X[-test_round-1,0][None,None], X[-test_round-1,1][None,None], test_round, y_uneq_discret[-test_round:], "itr_uneqb_res_skip_wt.h5")
-            f.write("itr_uneqb_res_skip_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round:], preds)) + "\n")
+            f.write("itr_uneqb_res_skip_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round:], peds)) + "\n")
 
       if 5 in run_example:
             ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
@@ -168,5 +168,5 @@ with open("mean_absolute_errors.txt", "w") as f:
             targets, preds = ehwavenet.iterative_train(X, y_uneq_discret, test_round = test_round, batch_size=batch_size, epochs=epochs, y_feature_axis_in_X=0, should_norm_y=False, weight_file="itr_uneqb_res_skip_cond_wt.h5")
             f.write("itr_uneqb_res_skip_cond_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
             peds = ehwavenet.generate(X[-test_round-1,0][None,None], X[-test_round-1,1][None,None], test_round, y_uneq_discret[-test_round:], "itr_uneqb_res_skip_cond_wt.h5")
-            f.write("itr_uneqb_res_skip_cond_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round:], preds)) + "\n")
+            f.write("itr_uneqb_res_skip_cond_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round:], peds)) + "\n")
       # ********* unequal bin_width *********
