@@ -565,7 +565,7 @@ class EnhancedBasicWaveNet(object):
             print("step ", step, " prediction: ", input_, " target: ", y_test[step])
             predictions.append(input_)
     
-        predictions_ = np.concatenate(predictions, axis=0)
+        predictions_ = np.concatenate(predictions, axis=0).reshape(-1)
         visualize_forecast_plot(predictions_, y_test, show=False, save_figure=True, figname=weight_path.split('_wt')[0]+'_generate.png')
         
         return predictions_
