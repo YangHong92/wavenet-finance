@@ -562,10 +562,11 @@ class EnhancedBasicWaveNet(object):
             # decode index of bin, and rename input_ to feed back to model
             #input_ = np.array(bins[value])[None, None] # (1,1,batch_size)
             input_ = np.array([value])[None]
+            print("step ", step, " prediction: ", input_, " target: ", y_test[step])
             predictions.append(input_)
     
-        predictions_ = np.concatenate(predictions, axis=1)
-        visualize_forecast_plot(predictions_, y_test[:,-1,:], show=False, save_figure=True, figname=weight_path.split('_wt')[0]+'_generate.png')
+        predictions_ = np.concatenate(predictions, axis=0)
+        visualize_forecast_plot(predictions_, y_test, show=False, save_figure=True, figname=weight_path.split('_wt')[0]+'_generate.png')
         
         return predictions_
         
