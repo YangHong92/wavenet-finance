@@ -299,7 +299,7 @@ class EnhancedBasicWaveNet(object):
             targets = np.append(targets, y_test, axis=0)
             
             # Save the model weights.  
-            if i==0 and weight_file is not None:
+            if (i-ith_pos+to_predict)==0 and weight_file is not None:
                 self.weight_path = os.path.join('./', weight_file)
                 model.save_weights(self.weight_path)
                 print("path: ", self.weight_path)
