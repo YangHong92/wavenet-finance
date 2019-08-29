@@ -21,7 +21,7 @@ def calc_mean_abs_diff(pred_outs, y_test):
 def get_bin_border_with_equal_count(data, n_bins):
     data = np.sort(data)
     n_values = data.shape[0]
-    bin_borders = [np.amin(data)] + [data[(n_values // n_bins) * i] for i in range(1, n_bins)] + [np.amax(data)]
+    bin_borders = [round(data.min(), 4)-0.0001] + [data[(n_values // n_bins) * i] for i in range(1, n_bins)] + [round(data.max(), 4)+0.0001]
     
     return bin_borders
 

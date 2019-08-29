@@ -2,5 +2,5 @@
     "test_round": 50,
     "batch_size": 200,
     "epochs": 20,
-    "run_example": [0,1,2,3,4,5]
+    "run_example": [2]
 }
