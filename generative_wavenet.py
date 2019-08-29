@@ -242,6 +242,74 @@ class EnhancedBasicWaveNet(object):
         
         return outputs
     
+    def iterative_step_train(self, X, y, test_round=50, batch_size=20, epochs=50, test_step=10, y_feature_axis_in_X=0, should_norm_y=False, weight_file="wavenet_wt.h5"):
+        
+        to_predict = test_round * test_step
+        ith_pos = X.shape[0] 
+        preds = np.empty((0,))
+        targets = np.empty((0,))
+         
+        print("Totally to predict: ", to_predict)
+        print("Totally ", test_round, " iterative training/testing iterations")
+        
+        for i in range(ith_pos - to_predict, ith_pos, test_step):
+            normalizer = Normalizer()
+            end  = i+test_step  # to include ith_pos in last iteration
+            X_ = X[:end, :]
+            y_ = y[:end]    
+            
+            X_train, y_train, X_test, y_test  = split_batch_norm_NXNy(normalizer, test_step, X_, y_, y_feature_axis_in_X, should_norm_y, self.num_time_samples)
+            
+            if self.solution == 'classification':
+                y_train = to_categorical(y_train, num_classes=self.num_classes)                
+            else:
+                y_train = y_train.astype(np.float32) 
+            X_train = X_train.astype(np.float32)            
+            X_test = X_test.astype(np.float32)
+            print("X_train.shape: ", X_train.shape, "y_train.shape ", y_train.shape, self.use_condition, "self.num_channels ", self.num_channels)
+
+            print("*******Iteration NO.: ", str(int((i-ith_pos+to_predict)/test_step)), ", number of training examples: ", X_train.shape[0], ", number of test example: ", X_test.shape[0], "*******")
+            
+            steps_per_epoch = int(np.ceil(X_train.shape[0] / float(batch_size)))
+            print("batch_size: ", batch_size, "steps_per_epoch: ", steps_per_epoch)
+            
+            inp = Input(shape=(self.num_time_samples, self.num_channels ))
+            out = self.create_network_loss(inp)
+            model = Model(inputs=inp, outputs=out)
+            if self.solution == 'classification':
+                model.compile(optimizer = optimizers.Adam(lr=0.001),
+                                   loss='categorical_crossentropy',
+                                   metrics=['accuracy'])
+            else:
+                model.compile(optimizer = optimizers.Adam(lr=0.001),
+                               loss='mean_absolute_error',
+                               metrics=['accuracy'])
+            
+            model.fit_generator(generator(X_train, y_train, batch_size),
+                  epochs=epochs,
+                  # verbose=0, # stop print 
+                  steps_per_epoch=steps_per_epoch) 
+            # model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
+            out = model.predict(X_test)
+            out = np.argmax(out, axis=2)[:,-1] if self.solution == 'classification' else out[:, -1, :].reshape(-1)
+            y_test = np.squeeze(y_test, axis=2)[:,-1]
+            
+            print("out.shape: ", out.shape, "out: ", out, "y_test.shape: ", y_test.shape, "y_test: ", y_test)            
+            preds = np.append(preds, out, axis=0)
+            targets = np.append(targets, y_test, axis=0)
+            
+            # Save the model weights.  
+            if i==0 and weight_file is not None:
+                self.weight_path = os.path.join('./', weight_file)
+                model.save_weights(self.weight_path)
+                print("path: ", self.weight_path)
+            
+            del model, X_train, y_train, X_test, y_test, out
+            
+        visualize_forecast_plot(preds, targets, show=False, save_figure=True, figname=weight_file.split('_wt')[0]+'_step_predict.png')
+        
+        return targets, preds
+
     def iterative_train(self, X, y, test_round=600, batch_size=20, epochs=50, y_feature_axis_in_X=0, should_norm_y=False, weight_file="wavenet_wt.h5"):
                         
         iterations = X.shape[0] - self.num_time_samples - 1 # receptive_field == self.num_time_samples 

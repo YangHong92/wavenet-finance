@@ -145,7 +145,7 @@ def split_batch_norm_NXNy(normalizer, split_rate, X, y, y_feature_axis_in_X, sho
     if split_rate < 1:
         split = int(split_rate*batches)
     else:
-        split = batches - 1
+        split = batches - split_rate
     
     X_batch, y_batch = new_prepare_batch(X, y, batches, receptive_field)
     
