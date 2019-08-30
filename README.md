@@ -37,7 +37,10 @@ It is currently configured as:
 * "run_example" = 8 :
     experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True,
     iterative_step_train, preprocess X with moving_average
-
+* "run_example" = 9 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, higher receptive field
+* "run_example" = 10 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = False, iterative_step_train
 
 To get started, open terminal and run:
 `python3 main.py`
