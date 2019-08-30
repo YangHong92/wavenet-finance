@@ -41,6 +41,18 @@ It is currently configured as:
     experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, higher receptive field
 * "run_example" = 10 :
     experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = False, iterative_step_train
+* "run_example" = 11 :
+    experiment with outputs encoded in equal **bin_width** fashion, use_residual = True, use_skip = True, use_condition = False, iterative_step_train
+* "run_example" = 12 :
+    experiment with outputs encoded in equal bin_width fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train
+* "run_example" = 13 :
+    experiment with outputs encoded in equal **bin_count**  fashion, use_residual = True, use_skip = False, use_condition = True, iterative_step_train
+* "run_example" = 14 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = False, use_skip = True, use_condition = True, iterative_step_train
+* "run_example" = 15 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = False, use_skip = False, use_condition = True, iterative_step_train
+* "run_example" = 16 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = False, use_skip = False, use_condition = False, iterative_step_train
 
 To get started, open terminal and run:
 `python3 main.py`
