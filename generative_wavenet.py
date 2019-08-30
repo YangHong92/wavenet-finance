@@ -306,7 +306,7 @@ class EnhancedBasicWaveNet(object):
             
             del model, X_train, y_train, X_test, y_test, out
             
-        visualize_forecast_plot(preds, targets, show=False, save_figure=True, figname=weight_file.split('_wt')[0]+'_step_predict.png')
+        visualize_forecast_plot(preds, targets, show=False, save_figure=True, figname=weight_file.split('_wt')[0]+'_step_predict.eps')
         
         return targets, preds
 
@@ -634,7 +634,7 @@ class EnhancedBasicWaveNet(object):
             predictions.append(input_)
     
         predictions_ = np.concatenate(predictions, axis=0).reshape(-1)
-        visualize_forecast_plot(predictions_, y_test, show=False, save_figure=True, figname=weight_path.split('_wt')[0]+'_generate.png')
+        visualize_forecast_plot(predictions_, y_test, show=False, save_figure=True, figname=weight_path.split('_wt')[0]+'_generate.eps')
         
         return predictions_
         

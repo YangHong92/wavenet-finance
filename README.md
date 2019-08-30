@@ -53,6 +53,10 @@ It is currently configured as:
     experiment with outputs encoded in equal bin_count fashion, use_residual = False, use_skip = False, use_condition = True, iterative_step_train
 * "run_example" = 16 :
     experiment with outputs encoded in equal bin_count fashion, use_residual = False, use_skip = False, use_condition = False, iterative_step_train
+* "run_example" = 17 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, GBP/USD
+* "run_example" = 18 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, Lorenz_x+Lorenz_y
 
 To get started, open terminal and run:
 `python3 main.py`

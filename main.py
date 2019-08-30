@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from myutil import calculate_receptive_field, get_bin_border_with_equal_count, mean_absolute_error
+from myutil import calculate_receptive_field, get_bin_border_with_equal_count, mean_absolute_error, generateLorenz
 from generative_wavenet import EnhancedBasicWaveNet
 import json
 
@@ -424,3 +424,68 @@ with open("mean_absolute_errors.txt", "w") as f:
             f.writelines("%s\n" % item for item in peds)
             f.write("uneq_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
       # ********* unequal bin_width + iterative_step_train - condition - res - skip *********
+
+      # ********* unequal bin_width + iterative_step_train + condition: GBP/USD *********
+      if 17 in run_example:
+            X_ = X[:,[0,2]]
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X_.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = True,                              
+                  solution = solution[0])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X_, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_cond_gbp_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_res_skip_cond_gbp_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = uneq_ehwavenet.generate(X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_cond_gbp_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_res_skip_cond_gbp_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train + condition: GBP/USD *********
+
+      if 18 in run_example:
+            def add_date_to_toydata(xs, ys, zs, xs_col_name, ys_col_name, zs_col_name, toy_start_date):
+                  try:
+                        if xs.shape[0] == ys.shape[0]:
+                              length = xs.shape[0]
+                              date_range = pd.date_range(toy_start_date, periods=length, freq='D')
+                              return pd.DataFrame(np.array([date_range, xs,ys,zs]).T, columns=['date', xs_col_name,ys_col_name,zs_col_name])
+                        else:
+                              raise Exception('')   
+                  except:
+                        print('unequal dimension of inputs')
+                  
+
+            xs,ys,zs = generateLorenz(stepCnt=3000, figure=True)
+
+            toy_start_date = '1980-01-01'
+            lorenz_ = add_date_to_toydata(xs, ys, zs, 'xs', 'ys', 'zs', toy_start_date)
+            loz_X = lorenz_.loc[1:,['xs', 'ys', 'zs']].values.astype(np.float64)
+            loz_y = lorenz_.loc[1:,['xs']].values.astype(np.float64)
+            LOZX = loz_X[:,0]
+
+            uneq_bin_borders_loz = get_bin_border_with_equal_count(LOZX, quantization_channels)
+            loz_y_uneq_discret = np.digitize(LOZX, uneq_bin_borders_loz) - 1
+
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = loz_X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = True,                              
+                  solution = solution[0])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(loz_X, loz_y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="loz_uneq_res_skip_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("loz_uneq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")           
+            peds = uneq_ehwavenet.generate(loz_X[-test_round*test_step-1,0][None,None], loz_X[-test_round*test_step-1,1][None,None], test_round*test_step, loz_y_uneq_discret[-test_round*test_step:], "loz_uneq_res_skip_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("loz_uneq_res_skip_cond_step_generate: " + str(mean_absolute_error(loz_y_uneq_discret[-test_round*test_step:], peds)) + "\n")
+            
