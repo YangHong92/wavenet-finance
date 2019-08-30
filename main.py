@@ -186,27 +186,6 @@ with open("mean_absolute_errors.txt", "w") as f:
             f.write("itr_uneqb_res_skip_cond_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round:], peds)) + "\n")
       # ********* unequal bin_width *********
 
-      # ********* unequal bin_width + iterative_step_train + condition *********
-      if 6 in run_example:
-            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
-                  num_classes = quantization_channels, 
-                  use_condition = True, # with global_condition
-                  num_channels = X.shape[-1],                              
-                  num_blocks = num_blocks, 
-                  num_layers = num_layers, 
-                  num_hidden = num_hidden,
-                  use_skip = True,
-                  use_residual = True,                              
-                  solution = solution[0])
-
-            targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_cond_step_wt.h5")
-            f.writelines("%s\n" % item for item in preds)
-            f.write("uneq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
-            peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_cond_step_wt.h5")
-            f.writelines("%s\n" % item for item in peds)
-            f.write("uneq_res_skip_cond_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
-      # ********* unequal bin_width + iterative_step_train  *********
-
       # ********* unequal bin_width + moving average *********
       uneq_bin_borders_ewm = get_bin_border_with_equal_count(SPX_ewm, quantization_channels)
       y_uneq_discret_ewm = np.digitize(SPX_ewm, uneq_bin_borders_ewm) - 1
@@ -276,7 +255,7 @@ with open("mean_absolute_errors.txt", "w") as f:
             peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_high_res_skip_cond_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("uneq_high_res_skip_cond_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
-      # ********* unequal bin_width + iterative_step_train  *********
+      # ********* unequal bin_width + iterative_step_train + condition + higher receptive field *********
 
       # ********* unequal bin_width + iterative_step_train - condition  *********
       if 10 in run_example:
@@ -297,4 +276,151 @@ with open("mean_absolute_errors.txt", "w") as f:
             peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("uneq_res_skip_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
-      # ********* unequal bin_width + iterative_step_train  *********
+      # ********* unequal bin_width + iterative_step_train - condition *********
+
+      # ********* unequal bin_width + iterative_step_train + condition *********
+      if 6 in run_example:
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = True,                              
+                  solution = solution[0])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_res_skip_cond_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train + condition *********
+
+      # ********* equal bin_width + iterative_step_train - condition  *********
+      if 11 in run_example:
+            eq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = False, # no global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = True,                              
+                  solution = solution[0])
+
+            targets, preds = eq_ehwavenet.iterative_step_train(X, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("eq_res_skip_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = eq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_discret[-test_round*test_step:], "eq_res_skip_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("eq_res_skip_step_generate: " + str(mean_absolute_error(y_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* equal bin_width + iterative_step_train - condition *********
+
+      # ********* equal bin_width + iterative_step_train + condition  *********
+      if 12 in run_example:
+            eq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = True,                              
+                  solution = solution[0])
+
+            targets, preds = eq_ehwavenet.iterative_step_train(X, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("eq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = eq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_discret[-test_round*test_step:], "eq_res_skip_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("eq_res_skip_cond_step_generate: " + str(mean_absolute_error(y_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* equal bin_width + iterative_step_train + condition *********
+
+      # ********* unequal bin_width + iterative_step_train + condition - skip *********
+      if 13 in run_example:
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = False,
+                  use_residual = True,                              
+                  solution = solution[0])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_res_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_res_cond_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train + condition - skip *********
+
+      # ********* unequal bin_width + iterative_step_train + condition - res *********
+      if 14 in run_example:
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = False,                              
+                  solution = solution[0])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_skip_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_skip_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_skip_cond_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train + condition - res *********
+
+      # ********* unequal bin_width + iterative_step_train + condition - res - skip *********
+      if 15 in run_example:
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = False,
+                  use_residual = False,                              
+                  solution = solution[0])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_cond_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train + condition - res - skip *********
+
+      # ********* unequal bin_width + iterative_step_train - condition - res - skip *********
+      if 16 in run_example:
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = False, # no global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = False,
+                  use_residual = False,                              
+                  solution = solution[0])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train - condition - res - skip *********
