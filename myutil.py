@@ -289,9 +289,9 @@ def visualize_forecast_plot(pred_outs_back, y_test_back, show=True, save_figure=
     fig = plt.figure(figsize=(12, 8))
     df_pred_outs_back.plot(label='Forecast', alpha=.75)
     df_y_test_back.plot(label='Actual', alpha=.75, ls='--')
-    plt.legend(fontsize=12)
-    plt.xlabel("Time steps")
-    plt.ylabel("Price")
+    plt.legend(fontsize=20)
+    plt.xlabel("Time steps", fontsize=20)
+    plt.ylabel("Price", fontsize=20)
     if figname is not None:
         plt.title(figname.split('.')[0])
     if save_figure and figname is not None:
@@ -313,9 +313,9 @@ def visualize_forecast_scatter(pred_outs_back, y_test_back, show=True, save_figu
     fig = plt.figure(figsize=(12, 8))
     plt.scatter(np.arange(0, df_pred_outs_back.shape[0]), df_pred_outs_back, label='Forecast', alpha=.75, marker='.')
     plt.scatter(np.arange(0, df_y_test_back.shape[0]), df_y_test_back, label='Actual', alpha=.75, marker='.')
-    plt.legend(fontsize=12)
-    plt.xlabel("Time steps")
-    plt.ylabel("Price")
+    plt.legend(fontsize=20)
+    plt.xlabel("Time steps", fontsize=20)
+    plt.ylabel("Price", fontsize=20)
     if figname is not None:
         plt.title(figname.split('.')[0])
     if save_figure and figname is not None:
