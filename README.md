@@ -57,6 +57,16 @@ It is currently configured as:
     experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, GBP/USD
 * "run_example" = 18 :
     experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, Lorenz_x+Lorenz_y
+* "run_example" = 19 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = False, use_skip = True, use_condition = False, iterative_step_train
+* "run_example" = 20 :
+    experiment with outputs encoded in equal **bin_width** fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, GBP/USD
+* "run_example" = 21 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, GBP/USD (Regression)
+* "run_example" = 22 :
+    experiment with outputs encoded in equal bin_count fashion, 3 layer LSTM (Classification)
+* "run_example" = 23 :
+    experiment with outputs encoded in equal bin_count fashion, 3 layer LSTM (Regression)
 
 To get started, open terminal and run:
 `python3 main.py`

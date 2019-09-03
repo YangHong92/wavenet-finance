@@ -231,13 +231,13 @@ with open("mean_absolute_errors.txt", "w") as f:
             f.write("uneq_ewm_res_skip_cond_step_generate: " + str(mean_absolute_error(y_uneq_discret_ewm[-test_round*test_step:], peds)) + "\n")
       # ********* unequal bin_width + moving average + iterative_step_train *********
      
-      # ********* unequal bin_width + iterative_step_train + condition + higher receptive field *********
-      num_blocks_high = 4
-      num_layers_high = 6 
-      dilations_high = [2**i for i in range(num_layers_high)] * num_blocks_high
-      receptive_field_high = calculate_receptive_field(dilations_high, filter_width)  
-      print("receptive_field_high: ", receptive_field_high)
+      # ********* unequal bin_width + iterative_step_train + condition + higher receptive field *********     
       if 9 in run_example:
+            num_blocks_high = 4
+            num_layers_high = 6 
+            dilations_high = [2**i for i in range(num_layers_high)] * num_blocks_high
+            receptive_field_high = calculate_receptive_field(dilations_high, filter_width)  
+            print("receptive_field_high: ", receptive_field_high)
             uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field_high, 
                   num_classes = quantization_channels, 
                   use_condition = True, # with global_condition
@@ -362,6 +362,27 @@ with open("mean_absolute_errors.txt", "w") as f:
             f.write("uneq_res_cond_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
       # ********* unequal bin_width + iterative_step_train + condition - skip *********
 
+      # ********* unequal bin_width + iterative_step_train - condition - res *********
+      if 19 in run_example:
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = False, # with global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = False,                              
+                  solution = solution[0])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_skip_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_skip_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_skip_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_skip_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train + condition - res *********
+
       # ********* unequal bin_width + iterative_step_train + condition - res *********
       if 14 in run_example:
             uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
@@ -447,6 +468,28 @@ with open("mean_absolute_errors.txt", "w") as f:
             f.write("uneq_res_skip_cond_gbp_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
       # ********* unequal bin_width + iterative_step_train + condition: GBP/USD *********
 
+      # ********* equal bin_width + iterative_step_train + condition: GBP/USD *********
+      if 20 in run_example:
+            X_ = X[:,[0,2]]
+            eq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X_.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = True,                              
+                  solution = solution[0])
+
+            targets, preds = eq_ehwavenet.iterative_step_train(X_, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_cond_gbp_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("eq_res_skip_cond_gbp_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = eq_ehwavenet.generate(X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y_discret[-test_round*test_step:], "eq_res_skip_cond_gbp_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("eq_res_skip_cond_gbp_step_generate: " + str(mean_absolute_error(y_discret[-test_round*test_step:], peds)) + "\n")
+      # ********* equal bin_width + iterative_step_train + condition: GBP/USD *********
+
       if 18 in run_example:
             def add_date_to_toydata(xs, ys, zs, xs_col_name, ys_col_name, zs_col_name, toy_start_date):
                   try:
@@ -488,4 +531,108 @@ with open("mean_absolute_errors.txt", "w") as f:
             peds = uneq_ehwavenet.generate(loz_X[-test_round*test_step-1,0][None,None], loz_X[-test_round*test_step-1,1][None,None], test_round*test_step, loz_y_uneq_discret[-test_round*test_step:], "loz_uneq_res_skip_cond_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("loz_uneq_res_skip_cond_step_generate: " + str(mean_absolute_error(loz_y_uneq_discret[-test_round*test_step:], peds)) + "\n")
+
+      # ********* unequal bin_width + iterative_step_train + condition: GBP/USD + Regression *********
+      if 21 in run_example:
+            X_ = X[:,[0,2]]
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X_.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = True,                              
+                  solution = solution[1])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X_, y, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_cond_gbp_regression_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_res_skip_cond_gbp_regression_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            peds = uneq_ehwavenet.generate(X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y[-test_round*test_step:], "uneq_res_skip_cond_gbp_regression_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_res_skip_cond_gbp_regression_step_generate: " + str(mean_absolute_error(y[-test_round*test_step:], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train + condition: GBP/USD + Regression *********
+
+      # ********* unequal bin_width + LSTM + Classification *********
+      if 22 in run_example:
+            from keras.layers import Dense, Dropout, LSTM
+            from keras.models import Sequential
+            from keras import optimizers
+            from keras.utils.np_utils import to_categorical
+            from myutil import Normalizer, split_batch_norm_NXNy, visualize_forecast_plot
             
+            y_feature_axis_in_X = 0
+            should_norm_y = False
+            normalizer = Normalizer()
+            X_train, y_train, X_test, y_test = split_batch_norm_NXNy(normalizer, 0.8, X, y_uneq_discret, y_feature_axis_in_X, should_norm_y, receptive_field)
+            y_train_cat = to_categorical(y_train, num_classes=quantization_channels) 
+
+            lstm_model = Sequential()
+            lstm_model.add(LSTM(num_hidden, input_shape= (receptive_field,1), return_sequences=True))
+            lstm_model.add(LSTM(num_hidden, return_sequences=True))
+            lstm_model.add(LSTM(num_hidden, return_sequences=True))
+            lstm_model.add(Dropout(0.1))
+            lstm_model.add(Dense(quantization_channels, activation='softmax')) # use sigmoid if it's the case of multi-label classification
+
+            lstm_model.compile(optimizer=optimizers.Adam(lr=0.001), loss='categorical_crossentropy', metrics=['mean_absolute_error'])
+            lstm_model.fit(np.expand_dims(X_train[:,:, 0], axis=2), y_train_cat, epochs=epochs, batch_size=batch_size)
+
+            y_pred_lstm = lstm_model.predict(np.expand_dims(X_test[:,:, 0], axis=2))
+            y_pred_lstms = np.argmax(y_pred_lstm, axis=2)[:,-1]
+            y_target_lstms = np.squeeze(y_test, axis=2)[:,-1]
+            f.write("MAE: " + str(mean_absolute_error(y_target_lstms, y_pred_lstms)) + "\n")
+            visualize_forecast_plot(y_pred_lstms, y_target_lstms, show=False, save_figure=True, figname="lstm_class_predict.eps")
+      # ********* unequal bin_width + LSTM + Classification *********
+
+      # ********* unequal bin_width + LSTM + Regression *********
+      if 23 in run_example:
+            from keras.layers import Dense, Dropout, LSTM
+            from keras.models import Sequential
+            from keras import optimizers
+            from keras.utils.np_utils import to_categorical
+            from myutil import Normalizer, split_batch_norm_NXNy, visualize_forecast_plot
+
+            y_feature_axis_in_X = 0
+            should_norm_y = True
+            normalizer = Normalizer()
+            X_train, y_train, X_test, y_test = split_batch_norm_NXNy(normalizer, 0.8, X, y, y_feature_axis_in_X, should_norm_y, receptive_field)
+            
+            lstm_model = Sequential()
+            lstm_model.add(LSTM(num_hidden, input_shape= (receptive_field,1), return_sequences=True))
+            lstm_model.add(LSTM(num_hidden, return_sequences=True))
+            lstm_model.add(LSTM(num_hidden, return_sequences=True))
+            lstm_model.add(Dropout(0.1))
+            lstm_model.add(Dense(1, activation='linear')) # use sigmoid if it's the case of multi-label classification
+
+            lstm_model.compile(optimizer=optimizers.Adam(lr=0.001), loss='mean_squared_error', metrics=['mean_absolute_error'])
+            lstm_model.fit(np.expand_dims(X_train[:,:, 0], axis=2), y_train, epochs=epochs, batch_size=batch_size)
+
+            y_pred_lstm_reg = lstm_model.predict(np.expand_dims(X_test[:,:, 0], axis=2))
+            y_pred_lstms_reg = np.argmax(y_pred_lstm_reg, axis=2)[:,-1]
+            y_target_lstms_reg = np.squeeze(y_test, axis=2)[:,-1]
+            f.write("MAE: " + str(mean_absolute_error(y_target_lstms_reg, y_pred_lstms_reg)) + "\n")
+            visualize_forecast_plot(normalizer.inverse_transform(y_pred_lstms_reg, y_feature_axis_in_X=0), normalizer.inverse_transform(y_target_lstms_reg, y_feature_axis_in_X=0), show=False, save_figure=True, figname="lstm_regression_predict.eps")
+      # ********* unequal bin_width + LSTM + Regression *********
+
+      # if 24 in run_example:
+      #       from keras.layers import Dense, Dropout, Activation, LSTM
+      #       from keras.models import Sequential
+      #       from myutil import Normalizer, split_batch_norm_X_multi_y, visualize_forecast_plot
+
+      #       y_feature_axis_in_X = 0
+      #       should_norm_y = True
+      #       no_multi_y = 1
+
+      #       normalizer = Normalizer()
+      #       X_train, y_train, X_test, y_test = split_batch_norm_X_multi_y(normalizer, 0.8, X, y, y_feature_axis_in_X, should_norm_y, no_multi_y, receptive_field)
+
+      #       model = Sequential()
+      #       model.add(LSTM(32, input_shape= (receptive_field,1), return_sequences=True))
+      #       model.add(LSTM(32, return_sequences=True))
+      #       model.add(LSTM(32, return_sequences=False))
+      #       model.add(Dropout(0.2))
+      #       model.add(Dense(units=1))
+      #       model.add(Activation('linear'))
+
+      #       model.compile(loss='mean_squared_error', optimizer='rmsprop', metrics=['mean_squared_error'])
