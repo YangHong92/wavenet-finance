@@ -622,9 +622,12 @@ class EnhancedBasicWaveNet(object):
             # ignore push ops, only keep final output, iteratively call q.enqueue(h) and compute h in all related layers
             output = self.sess.run(self.out_ops, feed_dict=feed_dict)[0] 
             
-            # dim of output = (batch_size, num_classes)
-            # quence shifts to left one-step 
-            value = np.argmax(output[0, :], axis = -1) 
+            if self.solution == 'classification':
+                # dim of output = (batch_size, num_classes)
+                # quence shifts to left one-step 
+                value = np.argmax(output[0, :], axis = -1) 
+            else:
+                value = output[0, :]
 
             # arr[None, None] = arr[None, None, :], add new axis to reshap to (1,1,len(arr))
             # decode index of bin, and rename input_ to feed back to model

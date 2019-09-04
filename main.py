@@ -546,7 +546,7 @@ with open("mean_absolute_errors.txt", "w") as f:
                   use_residual = True,                              
                   solution = solution[1])
 
-            targets, preds = uneq_ehwavenet.iterative_step_train(X_, y, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_cond_gbp_regression_step_wt.h5")
+            targets, preds = uneq_ehwavenet.iterative_step_train(X_, y, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=True, weight_file="uneq_res_skip_cond_gbp_regression_step_wt.h5")
             f.writelines("%s\n" % item for item in preds)
             f.write("uneq_res_skip_cond_gbp_regression_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
             peds = uneq_ehwavenet.generate(X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y[-test_round*test_step:], "uneq_res_skip_cond_gbp_regression_step_wt.h5")
