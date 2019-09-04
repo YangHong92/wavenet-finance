@@ -646,9 +646,12 @@ class EnhancedBasicWaveNet(object):
             # self.use_condition = False
             
             # input_ will always be normed value for both cases: regression and classification
-            print("step ", step, " prediction: ", input_, " target: ", y_test[step])
+            print("step ", step, " prediction: ", value, " target: ", y_test[step])
             predictions.append(value)
-    
+        
+        predictions = np.array(predictions)
+        if len(predictions.shape) == 1: 
+            predictions = predictions[None]
         predictions_ = np.concatenate(predictions, axis=0).reshape(-1)
         # invser_norm for regression, otherwise, keep disretisation
         if self.solution != 'classification':
