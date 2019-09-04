@@ -643,7 +643,7 @@ class EnhancedBasicWaveNet(object):
                 value = output[0, :]
                 input_ = np.array([value])
                         
-            # self.use_condition = False
+            self.use_condition = False
             
             # input_ will always be normed value for both cases: regression and classification
             print("step ", step, " prediction: ", value, " target: ", y_test[step])
