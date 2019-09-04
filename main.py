@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from myutil import calculate_receptive_field, get_bin_border_with_equal_count, mean_absolute_error, generateLorenz
+from myutil import calculate_receptive_field, get_bin_border_with_equal_count, mean_absolute_error, generateLorenz, Normalizer, split_batch_norm_NXNy, visualize_forecast_plot
 from generative_wavenet import EnhancedBasicWaveNet
 import json
 
@@ -270,10 +270,14 @@ with open("mean_absolute_errors.txt", "w") as f:
                   use_residual = True,                              
                   solution = solution[0])
 
-            targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_step_wt.h5")
-            f.writelines("%s\n" % item for item in preds)
-            f.write("uneq_res_skip_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
-            peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_step_wt.h5")
+            # targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_step_wt.h5")
+            # f.writelines("%s\n" % item for item in preds)
+            # f.write("uneq_res_skip_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            
+            normalizer = Normalizer()
+            _ = normalizer.fit_transform(X)
+            bins = uneq_bin_borders
+            peds = uneq_ehwavenet.generate(normalizer, bins, X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("uneq_res_skip_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
       # ********* unequal bin_width + iterative_step_train - condition *********
@@ -291,10 +295,14 @@ with open("mean_absolute_errors.txt", "w") as f:
                   use_residual = True,                              
                   solution = solution[0])
 
-            targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_cond_step_wt.h5")
-            f.writelines("%s\n" % item for item in preds)
-            f.write("uneq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
-            peds = uneq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_cond_step_wt.h5")
+            # targets, preds = uneq_ehwavenet.iterative_step_train(X, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_cond_step_wt.h5")
+            # f.writelines("%s\n" % item for item in preds)
+            # f.write("uneq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            
+            normalizer = Normalizer()
+            _ = normalizer.fit_transform(X)
+            bins = uneq_bin_borders
+            peds = uneq_ehwavenet.generate(normalizer, bins, X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_cond_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("uneq_res_skip_cond_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
       # ********* unequal bin_width + iterative_step_train + condition *********
@@ -312,10 +320,14 @@ with open("mean_absolute_errors.txt", "w") as f:
                   use_residual = True,                              
                   solution = solution[0])
 
-            targets, preds = eq_ehwavenet.iterative_step_train(X, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_step_wt.h5")
-            f.writelines("%s\n" % item for item in preds)
-            f.write("eq_res_skip_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
-            peds = eq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_discret[-test_round*test_step:], "eq_res_skip_step_wt.h5")
+            # targets, preds = eq_ehwavenet.iterative_step_train(X, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_step_wt.h5")
+            # f.writelines("%s\n" % item for item in preds)
+            # f.write("eq_res_skip_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+
+            normalizer = Normalizer()
+            _ = normalizer.fit_transform(X)
+            bins = bins
+            peds = eq_ehwavenet.generate(normalizer, bins, X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_discret[-test_round*test_step:], "eq_res_skip_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("eq_res_skip_step_generate: " + str(mean_absolute_error(y_discret[-test_round*test_step:], peds)) + "\n")
       # ********* equal bin_width + iterative_step_train - condition *********
@@ -333,10 +345,14 @@ with open("mean_absolute_errors.txt", "w") as f:
                   use_residual = True,                              
                   solution = solution[0])
 
-            targets, preds = eq_ehwavenet.iterative_step_train(X, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_cond_step_wt.h5")
-            f.writelines("%s\n" % item for item in preds)
-            f.write("eq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
-            peds = eq_ehwavenet.generate(X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_discret[-test_round*test_step:], "eq_res_skip_cond_step_wt.h5")
+            # targets, preds = eq_ehwavenet.iterative_step_train(X, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_cond_step_wt.h5")
+            # f.writelines("%s\n" % item for item in preds)
+            # f.write("eq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+
+            normalizer = Normalizer()
+            _ = normalizer.fit_transform(X)
+            bins = bins
+            peds = eq_ehwavenet.generate(normalizer, bins, X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y_discret[-test_round*test_step:], "eq_res_skip_cond_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("eq_res_skip_cond_step_generate: " + str(mean_absolute_error(y_discret[-test_round*test_step:], peds)) + "\n")
       # ********* equal bin_width + iterative_step_train + condition *********
@@ -460,10 +476,14 @@ with open("mean_absolute_errors.txt", "w") as f:
                   use_residual = True,                              
                   solution = solution[0])
 
-            targets, preds = uneq_ehwavenet.iterative_step_train(X_, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_cond_gbp_step_wt.h5")
-            f.writelines("%s\n" % item for item in preds)
-            f.write("uneq_res_skip_cond_gbp_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
-            peds = uneq_ehwavenet.generate(X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_cond_gbp_step_wt.h5")
+            # targets, preds = uneq_ehwavenet.iterative_step_train(X_, y_uneq_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="uneq_res_skip_cond_gbp_step_wt.h5")
+            # f.writelines("%s\n" % item for item in preds)
+            # f.write("uneq_res_skip_cond_gbp_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            
+            normalizer = Normalizer()
+            _ = normalizer.fit_transform(X_)
+            bins = uneq_bin_borders
+            peds = uneq_ehwavenet.generate(normalizer, bins, X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y_uneq_discret[-test_round*test_step:], "uneq_res_skip_cond_gbp_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("uneq_res_skip_cond_gbp_step_generate: " + str(mean_absolute_error(y_uneq_discret[-test_round*test_step:], peds)) + "\n")
       # ********* unequal bin_width + iterative_step_train + condition: GBP/USD *********
@@ -482,10 +502,14 @@ with open("mean_absolute_errors.txt", "w") as f:
                   use_residual = True,                              
                   solution = solution[0])
 
-            targets, preds = eq_ehwavenet.iterative_step_train(X_, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_cond_gbp_step_wt.h5")
-            f.writelines("%s\n" % item for item in preds)
-            f.write("eq_res_skip_cond_gbp_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
-            peds = eq_ehwavenet.generate(X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y_discret[-test_round*test_step:], "eq_res_skip_cond_gbp_step_wt.h5")
+            # targets, preds = eq_ehwavenet.iterative_step_train(X_, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_cond_gbp_step_wt.h5")
+            # f.writelines("%s\n" % item for item in preds)
+            # f.write("eq_res_skip_cond_gbp_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            
+            normalizer = Normalizer()
+            _ = normalizer.fit_transform(X_)
+            bins = bins
+            peds = eq_ehwavenet.generate(normalizer, bins, X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y_discret[-test_round*test_step:], "eq_res_skip_cond_gbp_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("eq_res_skip_cond_gbp_step_generate: " + str(mean_absolute_error(y_discret[-test_round*test_step:], peds)) + "\n")
       # ********* equal bin_width + iterative_step_train + condition: GBP/USD *********
@@ -549,7 +573,11 @@ with open("mean_absolute_errors.txt", "w") as f:
             targets, preds = uneq_ehwavenet.iterative_step_train(X_, y, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=True, weight_file="uneq_res_skip_cond_gbp_regression_step_wt.h5")
             f.writelines("%s\n" % item for item in preds)
             f.write("uneq_res_skip_cond_gbp_regression_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
-            peds = uneq_ehwavenet.generate(X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y[-test_round*test_step:], "uneq_res_skip_cond_gbp_regression_step_wt.h5")
+            
+            normalizer = Normalizer()
+            _ = normalizer.fit_transform(X_)
+            bins = uneq_bin_borders
+            peds = uneq_ehwavenet.generate(normalizer, bins, X_[-test_round*test_step-1,0][None,None], X_[-test_round*test_step-1,1][None,None], test_round*test_step, y[-test_round*test_step:], "uneq_res_skip_cond_gbp_regression_step_wt.h5")
             f.writelines("%s\n" % item for item in peds)
             f.write("uneq_res_skip_cond_gbp_regression_step_generate: " + str(mean_absolute_error(y[-test_round*test_step:], peds)) + "\n")
       # ********* unequal bin_width + iterative_step_train + condition: GBP/USD + Regression *********
@@ -560,7 +588,6 @@ with open("mean_absolute_errors.txt", "w") as f:
             from keras.models import Sequential
             from keras import optimizers
             from keras.utils.np_utils import to_categorical
-            from myutil import Normalizer, split_batch_norm_NXNy, visualize_forecast_plot
             
             y_feature_axis_in_X = 0
             should_norm_y = False
@@ -591,7 +618,6 @@ with open("mean_absolute_errors.txt", "w") as f:
             from keras.models import Sequential
             from keras import optimizers
             from keras.utils.np_utils import to_categorical
-            from myutil import Normalizer, split_batch_norm_NXNy, visualize_forecast_plot
 
             y_feature_axis_in_X = 0
             should_norm_y = True
@@ -614,25 +640,3 @@ with open("mean_absolute_errors.txt", "w") as f:
             f.write("MAE: " + str(mean_absolute_error(y_target_lstms_reg, y_pred_lstms_reg)) + "\n")
             visualize_forecast_plot(normalizer.inverse_transform(y_pred_lstms_reg, y_feature_axis_in_X=0), normalizer.inverse_transform(y_target_lstms_reg, y_feature_axis_in_X=0), show=False, save_figure=True, figname="lstm_regression_predict.eps")
       # ********* unequal bin_width + LSTM + Regression *********
-
-      # if 24 in run_example:
-      #       from keras.layers import Dense, Dropout, Activation, LSTM
-      #       from keras.models import Sequential
-      #       from myutil import Normalizer, split_batch_norm_X_multi_y, visualize_forecast_plot
-
-      #       y_feature_axis_in_X = 0
-      #       should_norm_y = True
-      #       no_multi_y = 1
-
-      #       normalizer = Normalizer()
-      #       X_train, y_train, X_test, y_test = split_batch_norm_X_multi_y(normalizer, 0.8, X, y, y_feature_axis_in_X, should_norm_y, no_multi_y, receptive_field)
-
-      #       model = Sequential()
-      #       model.add(LSTM(32, input_shape= (receptive_field,1), return_sequences=True))
-      #       model.add(LSTM(32, return_sequences=True))
-      #       model.add(LSTM(32, return_sequences=False))
-      #       model.add(Dropout(0.2))
-      #       model.add(Dense(units=1))
-      #       model.add(Activation('linear'))
-
-      #       model.compile(loss='mean_squared_error', optimizer='rmsprop', metrics=['mean_squared_error'])

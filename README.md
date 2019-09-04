@@ -29,6 +29,7 @@ It is currently configured as:
     experiment with outputs encoded in equal **bin_count** fashion, use_residual = True, use_skip = True, use_condition = False
 * "run_example" = 5 :
     experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True
+    
 * "run_example" = 6 :
     experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train
 * "run_example" = 7 :

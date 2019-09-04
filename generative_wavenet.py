@@ -294,7 +294,12 @@ class EnhancedBasicWaveNet(object):
             out = np.argmax(out, axis=2)[:,-1] if self.solution == 'classification' else out[:, -1, :].reshape(-1)
             y_test = np.squeeze(y_test, axis=2)[:,-1]
             
-            print("out.shape: ", out.shape, "out: ", out, "y_test.shape: ", y_test.shape, "y_test: ", y_test)            
+            print("out.shape: ", out.shape, "out: ", out, "y_test.shape: ", y_test.shape, "y_test: ", y_test) 
+            
+            if should_norm_y: 
+                out = normalizer.inverse_transform(out, y_feature_axis_in_X=y_feature_axis_in_X)
+                y_test = normalizer.inverse_transform(y_test, y_feature_axis_in_X=y_feature_axis_in_X)
+
             preds = np.append(preds, out, axis=0)
             targets = np.append(targets, y_test, axis=0)
             
@@ -305,7 +310,7 @@ class EnhancedBasicWaveNet(object):
                 print("path: ", self.weight_path)
             
             del model, X_train, y_train, X_test, y_test, out
-            
+
         visualize_forecast_plot(preds, targets, show=False, save_figure=True, figname=weight_file.split('_wt')[0]+'_step_predict.eps')
         
         return targets, preds
@@ -606,16 +611,19 @@ class EnhancedBasicWaveNet(object):
         self.sess = K.get_session()
         self.sess.run(self.init_ops)
 
-    def generate(self, input_, condition_, num_samples, y_test, weight_path, batch_size=1, input_size=1):
+    def generate(self, normalizer, bins, input_, condition_, num_samples, y_test, weight_path, y_feature_axis_in_X=0, cond_feature_axis_in_X=1, batch_size=1, input_size=1):
 
         gen_model = self._load_model(weight_path) 
             
         self._init_generator(gen_model, batch_size=batch_size, input_size=input_.shape[-1])
         # self._init_generator(gen_model, batch_size, input_size)
         
+        # keep disretisation or unnormed regression value
         predictions = []
-        
-        for step in range(num_samples):
+        condition_ = normalizer.transform(condition_, y_feature_axis_in_X=cond_feature_axis_in_X)
+        input_ = normalizer.transform(input_, y_feature_axis_in_X=y_feature_axis_in_X) 
+
+        for step in range(num_samples):           
             #feed_dict = {self.inputs: [input_, condition]}
             feed_dict = {self.inputs: input_, self.conditions: condition_}
             
@@ -625,18 +633,26 @@ class EnhancedBasicWaveNet(object):
             if self.solution == 'classification':
                 # dim of output = (batch_size, num_classes)
                 # quence shifts to left one-step 
-                value = np.argmax(output[0, :], axis = -1) 
+                value = np.argmax(output[0, :], axis = -1)
+                # arr[None, None] = arr[None, None, :], add new axis to reshap to (1,1,len(arr))
+                # decode index of bin, and rename input_ to feed back to model
+                input_ = np.array(bins[value])[None, None] # (1,1)      
+                # norm bins[value], otherwise input_ is already normed, no need for further norm
+                input_ = normalizer.transform(input_, y_feature_axis_in_X=y_feature_axis_in_X) 
             else:
                 value = output[0, :]
-
-            # arr[None, None] = arr[None, None, :], add new axis to reshap to (1,1,len(arr))
-            # decode index of bin, and rename input_ to feed back to model
-            #input_ = np.array(bins[value])[None, None] # (1,1,batch_size)
-            input_ = np.array([value])[None]
+                input_ = np.array([value])
+                        
+            # self.use_condition = False
+            
+            # input_ will always be normed value for both cases: regression and classification
             print("step ", step, " prediction: ", input_, " target: ", y_test[step])
-            predictions.append(input_)
+            predictions.append(value)
     
         predictions_ = np.concatenate(predictions, axis=0).reshape(-1)
+        # invser_norm for regression, otherwise, keep disretisation
+        if self.solution != 'classification':
+            predictions_ = normalizer.inverse_transform(predictions_, y_feature_axis_in_X=y_feature_axis_in_X) 
         visualize_forecast_plot(predictions_, y_test, show=False, save_figure=True, figname=weight_path.split('_wt')[0]+'_generate.eps')
         
         return predictions_
