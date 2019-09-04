@@ -68,6 +68,10 @@ It is currently configured as:
     experiment with outputs encoded in equal bin_count fashion, 3 layer LSTM (Classification)
 * "run_example" = 23 :
     experiment with outputs encoded in equal bin_count fashion, 3 layer LSTM (Regression)
+* "run_example" = 24 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, FTSE (Regression)
+* "run_example" = 25 :
+    experiment with outputs encoded in equal bin_count fashion, use_residual = True, use_skip = True, use_condition = True, iterative_step_train, FTSE (Regression), high receptive field
 
 To get started, open terminal and run:
 `python3 main.py`

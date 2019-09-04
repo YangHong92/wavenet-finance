@@ -582,6 +582,62 @@ with open("mean_absolute_errors.txt", "w") as f:
             f.write("uneq_res_skip_cond_gbp_regression_step_generate: " + str(mean_absolute_error(y[-test_round*test_step:], peds)) + "\n")
       # ********* unequal bin_width + iterative_step_train + condition: GBP/USD + Regression *********
 
+      # ********* unequal bin_width + iterative_step_train + condition: FTSE 100 + Regression *********
+      if 24 in run_example:
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks, 
+                  num_layers = num_layers, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = True,                              
+                  solution = solution[1])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X, y, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=True, weight_file="uneq_res_skip_cond_ftse_regression_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_res_skip_cond_ftse_regression_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            
+            normalizer = Normalizer()
+            _ = normalizer.fit_transform(X)
+            bins = uneq_bin_borders
+            peds = uneq_ehwavenet.generate(normalizer, bins, X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y[-test_round*test_step:], "uneq_res_skip_cond_ftse_regression_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_res_skip_cond_ftse_regression_step_generate: " + str(mean_absolute_error(y[-test_round*test_step:, 0], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train + condition: FTSE 100 + Regression *********
+
+      # ********* unequal bin_width + iterative_step_train + condition: FTSE 100 + Regression + high receptive field *********
+      if 25 in run_example:
+            num_blocks_high = 4
+            num_layers_high = 6 
+            dilations_high = [2**i for i in range(num_layers_high)] * num_blocks_high
+            receptive_field_high = calculate_receptive_field(dilations_high, filter_width)  
+            print("receptive_field_high: ", receptive_field_high)
+            uneq_ehwavenet = EnhancedBasicWaveNet(num_time_samples = receptive_field_high, 
+                  num_classes = quantization_channels, 
+                  use_condition = True, # with global_condition
+                  num_channels = X.shape[-1],                              
+                  num_blocks = num_blocks_high, 
+                  num_layers = num_layers_high, 
+                  num_hidden = num_hidden,
+                  use_skip = True,
+                  use_residual = True,                              
+                  solution = solution[1])
+
+            targets, preds = uneq_ehwavenet.iterative_step_train(X, y, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=True, weight_file="uneq_res_skip_cond_high_ftse_regression_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("uneq_res_skip_cond_high_ftse_regression_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            
+            normalizer = Normalizer()
+            _ = normalizer.fit_transform(X)
+            bins = uneq_bin_borders
+            peds = uneq_ehwavenet.generate(normalizer, bins, X[-test_round*test_step-1,0][None,None], X[-test_round*test_step-1,1][None,None], test_round*test_step, y[-test_round*test_step:], "uneq_res_skip_cond_high_ftse_regression_step_wt.h5")
+            f.writelines("%s\n" % item for item in peds)
+            f.write("uneq_res_skip_cond_high_ftse_regression_step_generate: " + str(mean_absolute_error(y[-test_round*test_step:, 0], peds)) + "\n")
+      # ********* unequal bin_width + iterative_step_train + condition: FTSE 100 + Regression + high receptive field *********
+      
+
       # ********* unequal bin_width + LSTM + Classification *********
       if 22 in run_example:
             from keras.layers import Dense, Dropout, LSTM
