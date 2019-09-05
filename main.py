@@ -345,9 +345,9 @@ with open("mean_absolute_errors.txt", "w") as f:
                   use_residual = True,                              
                   solution = solution[0])
 
-            # targets, preds = eq_ehwavenet.iterative_step_train(X, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_cond_step_wt.h5")
-            # f.writelines("%s\n" % item for item in preds)
-            # f.write("eq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
+            targets, preds = eq_ehwavenet.iterative_step_train(X, y_discret, test_round=test_round, batch_size=batch_size, epochs=epochs, test_step=test_step, y_feature_axis_in_X=0, should_norm_y=False, weight_file="eq_res_skip_cond_step_wt.h5")
+            f.writelines("%s\n" % item for item in preds)
+            f.write("eq_res_skip_cond_step_predict: " + str(mean_absolute_error(targets, preds)) + "\n")
 
             normalizer = Normalizer()
             _ = normalizer.fit_transform(X)

@@ -3,5 +3,5 @@
     "test_step": 10,
     "batch_size": 200,
     "epochs": 20,
-    "run_example": [21]
+    "run_example": [12]
 }
